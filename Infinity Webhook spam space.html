@@ -1,2 +1,98 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Script de test pour envoi de message sur webhook Discord</title>
+  </head>
+  <body>
+    <h1>> Kronalight V4 <<br>Infinity Webhook Discord spamming.</h1>
 
+    <label for="webhook-link">Lien du webhook : (Ne fonctionne pas! Voir l'autre case webhook en dessous)</label>
+    <input type="text" id="webhook-link" name="webhook-link"><br><br>
+
+    <label for="message">Message :</label>
+    <input type="text" id="message" name="message"><br><br>
+
+    <label for="time">Temps en secondes :</label>
+    <input type="number" id="time" name="time"><br><br>
+
+    <button onclick="startLoop()">Démarrer la boucle</button>
+
+    <button onclick="addWebhook()">Ajouter un nouveau webhook</button>
+
+    <div id="webhook-container">
+      <label for="webhook-link-1">Lien du webhook :</label>
+      <input type="text" id="webhook-link-1" name="webhook-link-1"><br><br>
+    </div>
+
+    <script>
+      let webhooks = ["webhook-link-1"];
+
+      function startLoop() {
+        let time = document.getElementById("time").value;
+        let message = document.getElementById("message").value;
+        let webhookLinks = [];
+
+        for (let i = 0; i < webhooks.length; i++) {
+          let webhookLink = document.getElementById(webhooks[i]).value;
+          if (webhookLink !== "") {
+            webhookLinks.push(webhookLink);
+          }
+        }
+
+        if (webhookLinks.length === 0) {
+          alert("Vous devez entrer au moins un lien de webhook !");
+          return;
+        }
+
+        let count = 0;
+
+        function sendMessage() {
+          let currentWebhook = webhookLinks[count % webhookLinks.length];
+          let date = new Date();
+          let timestamp = `<t:${Math.floor(date.getTime() / 1000)}>`;
+
+          let request = new XMLHttpRequest();
+          request.open("POST", currentWebhook);
+
+          let params = {
+            "content": message + " " + timestamp
+          };
+
+          request.setRequestHeader("Content-type", "application/json");
+          request.send(JSON.stringify(params));
+
+          count++;
+        }
+
+        sendMessage();
+        let interval = setInterval(sendMessage, time * 1000);
+
+        setTimeout(() => {
+          clearInterval(interval);
+        }, 60000);
+      }
+
+      function addWebhook() {
+        let container = document.getElementById("webhook-container");
+        let id = "webhook-link-" + (webhooks.length + 1);
+
+        let label = document.createElement("label");
+        label.htmlFor = id;
+        label.innerText = "Lien du webhook :";
+        container.appendChild(label);
+
+        let input = document.createElement("input");
+        input.type = "text";
+        input.id = id;
+        input.name = id;
+        container.appendChild(input);
+        container.appendChild(document.createElement("br"));
+        container.appendChild(document.createElement("br"));
+
+        webhooks.push(id);
+      }
+    </script>
+  </body>
+</html>
 
